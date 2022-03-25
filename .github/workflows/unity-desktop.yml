@@ -1,0 +1,33 @@
+name: Unity build for Windows & Linux 🪟🐧
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build-desktop:
+    name: Build the game for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        targetPlatform:
+          - StandaloneWindows
+          - StandaloneLinux64
+    steps:
+      # Checkout
+      - uses: actions/checkout@v2
+        with:
+          lfs: false
+      # Build
+      - uses: game-ci/unity-builder@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: ${{ matrix.targetPlatform }}
+      # Output
+      - name: Upload built project
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
